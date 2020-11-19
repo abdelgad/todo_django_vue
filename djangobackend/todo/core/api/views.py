@@ -9,6 +9,7 @@ from .permissions import IsOwnerOrRefuse
 
 from rest_framework import generics
 from rest_framework import permissions
+from rest_framework.exceptions import ValidationError
 
 
 class TodoList(generics.ListCreateAPIView):
@@ -20,6 +21,9 @@ class TodoList(generics.ListCreateAPIView):
         return Todo.objects.filter(owner=user)
 
     def perform_create(self, serializer):
+        if(Todo.objects.filter(value=self.request.data['value'], owner=self.request.user)):
+            raise ValidationError('You have already added that todo')
+
         serializer.save(owner=self.request.user)
 
 
