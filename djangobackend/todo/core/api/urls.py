@@ -6,6 +6,7 @@ from .views import UserDetail
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+app_name = 'todoapi'
 urlpatterns = [
     path("todos/", TodoList.as_view(), name="todo_list"),
     path('todo/<uuid:uuid>/', TodoDetail.as_view(), name="todo_details"),
