@@ -19,7 +19,7 @@ RUN pip install -r requirements.txt
 # copy project
 COPY . .
 
-RUN chmod +x ./entrypoint.sh
+RUN chmod +x ./entrypoint.dev.sh
 
 # run entrypoint.sh
-ENTRYPOINT ["/backend/entrypoint.sh"]
+ENTRYPOINT ["/backend/entrypoint.dev.sh"]

@@ -4,6 +4,7 @@ export SECRET_KEY="yoursecret"
 export DJANGO_ALLOWED_HOSTS=
 
 # Database
+export DATABASE='postgres'
 export SQL_ENGINE=
 export SQL_DATABASE=
 export SQL_USER=

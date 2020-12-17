@@ -4,10 +4,8 @@ services:
   backend:
     build:
       context: djangobackend
-      dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./djangobackend/:/backend/
+      dockerfile: Dockerfile.prod
+    command: gunicorn todo.config.wsgi:application --bind 0.0.0.0:8000
     ports:
       - "8000:8000"
     environment:
@@ -36,9 +34,6 @@ services:
       - "POSTGRES_PASSWORD=${SQL_PASSWORD}"
     networks:
       - main
-    depends_on:
-      - backend
-      - frontend
 
   nginx:
     build: ./nginx
@@ -48,6 +43,9 @@ services:
       - main
     volumes:
       - frontend_build:/var/www/frontend:ro
+    depends_on:
+      - backend
+      - frontend
 
   frontend:
     build:
