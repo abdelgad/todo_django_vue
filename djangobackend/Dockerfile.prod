@@ -1,5 +1,9 @@
+###########
+# BUILDER #
+###########
+
 # pull official base image
-FROM python:3.9-alpine
+FROM python:3.9-alpine as builder
 
 # set work directory
 WORKDIR /backend
@@ -9,8 +13,26 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install psycopg2 dependencies
-RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
+RUN apk update \
+    && apk add postgresql-dev gcc python3-dev musl-dev
 
+# lint
+RUN pip install --upgrade pip
+RUN pip install flake8
+COPY . .
+RUN flake8 --ignore=E501,F401 .
+
+# install dependencies
+COPY ./requirements.txt .
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /backend/wheels -r requirements.txt
+
+
+#########
+# FINAL #
+#########
+
+# pull official base image
+FROM python:3.9-alpine
 
 # create directory for the app user
 RUN mkdir -p /home/app
@@ -25,17 +47,15 @@ RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
 # install dependencies
-RUN pip install --upgrade pip
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN apk update && apk add libpq
+COPY --from=builder /backend/wheels /wheels
+COPY --from=builder /backend/requirements.txt .
+RUN pip install --no-cache /wheels/*
 
 # copy project
 COPY . $APP_HOME
 
-# copy entrypoint-prod.sh
-COPY ./entrypoint.prod.sh $APP_HOME
-
-RUN chmod +x $APP_HOME/entrypoint.prod.sh
+RUN chmod +x ./entrypoint.prod.sh
 
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME
