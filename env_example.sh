@@ -5,7 +5,7 @@ export DJANGO_ALLOWED_HOSTS=
 
 # Database
 export DATABASE='postgres'
-export SQL_ENGINE=
+export SQL_ENGINE="django.db.backends.postgresql"
 export SQL_DATABASE=
 export SQL_USER=
 export SQL_PASSWORD=
