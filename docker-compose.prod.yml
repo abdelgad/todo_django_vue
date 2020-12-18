@@ -6,8 +6,10 @@ services:
       context: djangobackend
       dockerfile: Dockerfile.prod
     command: gunicorn todo.config.wsgi:application --bind 0.0.0.0:8000
-    ports:
-      - "8000:8000"
+    volumes:
+      - static_volume:/home/app/backend/staticfiles
+    expose:
+      - 8000
     environment:
       - "DEBUG=${DEBUG}"
       - "SECRET_KEY=${SECRET_KEY}"
@@ -36,13 +38,14 @@ services:
       - main
 
   nginx:
-    build: ./nginx
-    ports:
-      - "8080:80"
-    networks:
-      - main
+    build: nginx
     volumes:
       - frontend_build:/var/www/frontend:ro
+      - static_volume:/home/app/backend/staticfiles
+    ports:
+      - "8000:80"
+    networks:
+      - main
     depends_on:
       - backend
       - frontend
@@ -51,7 +54,6 @@ services:
     build:
       context: vuefrontend
       dockerfile: Dockerfile
-    command: tail -f /dev/null
     volumes:
       - frontend_build:/frontend/dist
 
@@ -60,4 +62,5 @@ networks:
 
 volumes:
   postgres_data:
+  static_volume:
   frontend_build:

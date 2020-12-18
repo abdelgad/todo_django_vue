@@ -7,9 +7,9 @@ services:
       dockerfile: Dockerfile
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - ./djangobackend/:/backend/
+      - ./djangobackend/:/usr/src/app/
     ports:
-      - "8000:8000"
+      - "8080:8000"
     environment:
       - "DEBUG=${DEBUG}"
       - "SECRET_KEY=${SECRET_KEY}"
@@ -36,24 +36,23 @@ services:
       - "POSTGRES_PASSWORD=${SQL_PASSWORD}"
     networks:
       - main
+
+  nginx:
+    build: nginx
+    volumes:
+      - frontend_build:/var/www/frontend:ro
+    ports:
+      - "8000:80"
+    networks:
+      - main
     depends_on:
       - backend
       - frontend
-
-  nginx:
-    build: ./nginx
-    ports:
-      - "8080:80"
-    networks:
-      - main
-    volumes:
-      - frontend_build:/var/www/frontend:ro
 
   frontend:
     build:
       context: vuefrontend
       dockerfile: Dockerfile
-    command: tail -f /dev/null
     volumes:
       - frontend_build:/frontend/dist
 
